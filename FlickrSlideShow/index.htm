@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link href="./style/normalize.css" rel="stylesheet" type="text/css" />
+    <link href="./style/site.css" rel="stylesheet" type="text/css" />
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/script/jquery.fullscreen-min.js" ></script>
+    <title></title>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#instructionsGotIt').click(function () {
+                $('#image').toggle();
+                $('#slideshowContainer').fullScreen(true);
+                $.getJSON("/handler/GetImages.ashx", addImagesToSlideshow);
+
+            });
+
+            //var images[];
+
+            $(window).resize(function () {
+                setImageSize();
+                setInstructionsPosition();
+            });
+
+            $("#image").load(function () { setImageSize(); });
+
+            setInstructionsPosition();
+
+
+
+            $(document).keydown(function (e) {
+                if (e.keyCode == 39) { nextPhoto(); return false; }            // Right Arrow Key
+                if (e.keyCode == 37) { previousPhoto(); return false; }        // Left Arrow Key
+            });
+        });
+        //----------------------------------------------------------------------------------------------------------------------
+        function nextPhoto() {
+            $('#slideshowContainer ul').animate({left: '-=' + $(window).width()});
+        }
+        //----------------------------------------------------------------------------------------------------------------------
+        function previousPhoto() {
+            $('#slideshowContainer ul').animate({ left: '+=' + $(window).width() });
+        }
+        //----------------------------------------------------------------------------------------------------------------------
+        function addImagesToSlideshow(data) {
+            for (var i = 0; i < 10; i++) {
+                var image = new Image();
+                image.src = data[i].url;
+                var newDimensions = determineImageSize(image);
+                $('#slideshowContainer ul').append('<li><img clas="slideshowImage" src="' + data[i].Uri + '" width="' +newDimensions[0] + '" height="' + newDimensions[1] + '" /></li>');
+            }
+        }
+        //----------------------------------------------------------------------------------------------------------------------
+        function determineImageSize(image) {
+            var imgAspectRatio = $('.slideshowImage').width() / $('.slideshowImage').height();
+            var winAspectRatio = $(window).width() / $(window).height();
+
+            var newHeight = 0;
+            var newWidth = 0;
+
+            if (imgAspectRatio > winAspectRatio) {
+                newHeight = $(window).height();
+                newWidth = $('#image').width() * $(window).height() / $('#image').height();
+            }
+            else {
+                newWidth = $(window).width();
+                newHeight = $('.slideshowImage').height() * $(window).width() / $('.slideshowImage').width();
+            }
+
+            return [newWidth, newHeight];
+        }
+        //----------------------------------------------------------------------------------------------------------------------
+        function setImageSize() {
+
+            $('#slideshowContainer').width($(window).width());
+            $('#slideshowContainer').height($(window).height());
+
+            var imgAspectRatio = $('.slideshowImage').width() / $('.slideshowImage').height();
+            var winAspectRatio = $(window).width() / $(window).height();
+
+            var newHeight = 0;
+            var newWidth = 0;
+
+            if (imgAspectRatio > winAspectRatio) {
+                newHeight = $(window).height();
+                newWidth = $('#image').width() * $(window).height() / $('#image').height();
+            }
+            else {
+                newWidth  = $(window).width();
+                newHeight = $('.slideshowImage').height() * $(window).width() / $('.slideshowImage').width();
+            }
+
+            $('#image').css('width', newWidth + 'px');
+            $('#image').css('height', newHeight + 'px');
+
+        }
+        //----------------------------------------------------------------------------------------------------------------------
+        function setInstructionsPosition()
+        {
+            var newLeft = ($(window).width() - $('#instructions').width()) / 2;
+            var newTop = ($(window).height() - $('#instructions').height()) / 2;
+            $('#instructions').css({ 'left': newLeft + 'px', 'top': newTop + 'px' });
+        }
+        //----------------------------------------------------------------------------------------------------------------------
+    </script>
+</head>
+<body>
+    <div id="slideshowContainer">
+        <img id="image" src="http://farm9.staticflickr.com/8543/8646322531_768bc07300_b.jpg" alt="image"/>
+        <ul>
+           
+        </ul>
+    </div>
+    <div id="instructions">
+        <div class="instructionsArrow" id="instructionsUp"><span class="arrow">&uarr;</span>resize</div>
+        <div class="instructionsArrow" id="instructionsLeft"><span class="arrow">&larr;</span>previous</div>
+        <div class="instructionsArrow" id="instructionsDown"><span class="arrow">&darr;</span>info</div>
+        <div class="instructionsArrow" id="instructionsRight"><span class="arrow">&rarr;</span>next</div>
+    </div>
+    <div id="instructionsGotIt">got it, thanks</div>
+</body>
+</html>
